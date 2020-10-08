@@ -1,0 +1,25 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug React front-end",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Attach to NodeJS back-end",
+      "port": 9229,
+      "protocol": "inspector",
+      "request": "attach",
+      "restart": true,
+      "sourceMaps": true,
+      "type": "node",
+      
+    },
+  ]
+}
