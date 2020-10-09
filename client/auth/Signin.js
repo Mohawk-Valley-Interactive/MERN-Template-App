@@ -61,6 +61,8 @@ class Signin extends Component {
     ) {
       this.safeSetState({ error: this.props.location.state.error });
     }
+
+    this.safeSetState({ redirectToReferrer: auth.isAuthenticated() });
   }
 
   componentWillUnmount() {

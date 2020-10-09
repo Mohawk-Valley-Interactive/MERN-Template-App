@@ -5,12 +5,12 @@ import userCtrl from "../controllers/user.controllers";
 const router = express.Router();
 
 router
-  .route("/api/users")
+  .route("/users")
   .get(userCtrl.list)
   .post(userCtrl.create);
 
 router
-  .route("/api/users/:userId")
+  .route("/users/:userId")
   .get(authCtrl.requireSignin, userCtrl.read)
   .put(authCtrl.requireSignin, userCtrl.hasAuthorization, userCtrl.update)
   .delete(authCtrl.requireSignin, userCtrl.hasAuthorization, userCtrl.remove);

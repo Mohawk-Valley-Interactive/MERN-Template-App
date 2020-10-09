@@ -31,8 +31,8 @@ app.use(cors());
 const WORKING_DIR = process.cwd();
 app.use("/dist", express.static(path.join(WORKING_DIR, "dist")));
 
-app.use("/", authRoutes);
-app.use("/", userRoutes);
+app.use("/api", authRoutes);
+app.use("/api", userRoutes);
 
 app.get("*", (req, res) => {
   const stylesSheets = new ServerStyleSheets();
