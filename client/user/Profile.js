@@ -1,6 +1,5 @@
-import React, { Component } from "react";
-import { Redirect } from "react-router";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, Link, Navigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
   Avatar,
@@ -23,99 +22,91 @@ import { read } from "./api-user.js";
 import auth from "./../auth/auth-helper";
 
 const styles = theme => ({
-  root: theme.mixins.gutters({
+  root: {
     maxWidth: 600,
     margin: "auto",
     padding: theme.spacing(3),
-    marginTop: theme.spacing(5)
-  }),
+    marginTop: theme.spacing(5),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3)
+    }
+  },
   title: {
     margin: `${theme.spacing(3)}px 0 ${theme.spacing(2)}px`,
     color: theme.palette.protectedTitle
   }
 });
 
-class Profile extends Component {
-  constructor({ match }) {
-    super();
-    this.state = {
-      user: "",
-      redirectToSignin: false
-    };
-    this.match = match;
-  }
+const Profile = ({ classes }) => {
+  let [user, setUser] = useState({});
+  let [redirectToSignin, setRedirectToSignin] = useState(false);
 
-  init(userId) {
-    const jwt = auth.isAuthenticated();
+  const params = useParams();
+  const isAuthenticated = auth.isAuthenticated();
+
+  useEffect(() => {
     read(
       {
-        userId: userId
+        userId: params.userId
       },
-      { t: jwt.token }
+      { t: isAuthenticated.token }
     ).then(data => {
       if (data.error) {
-        this.setState({ redirectToSignin: true });
+        setRedirectToSignin(true);
       } else {
-        this.setState({ user: data });
+        setUser(data);
       }
     });
+  }, []);
+
+  if (redirectToSignin) {
+    return (<Navigate replace to="/signin" />);
   }
 
-  componentWillReceiveProps(props) {
-    this.init(props.match.params.userId);
-  }
+  return (
+    <Paper className={classes.root} elevation={4}>
+      <Typography type="title" className={classes.title}>
+        Profile
+      </Typography>
+      <List dense>
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar>
+              <Person />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={user.name}
+            secondary={user.email}
+          />{" "}
+          {isAuthenticated.user &&
+            isAuthenticated.user._id == user._id && (
+              <ListItemSecondaryAction>
+                <Link to={"/user/edit/" + user._id}>
+                  <IconButton aria-label="Edit" color="primary">
+                    <Edit />
+                  </IconButton>
+                </Link>
+                <DeleteUser userId={user._id} />
+              </ListItemSecondaryAction>
+            )}
+        </ListItem>
+        <Divider />
+        <ListItem>
+          <ListItemText
+            primary={
+              "Joined: " + new Date(user.created).toDateString()
+            }
+          />
+        </ListItem>
+      </List>
+    </Paper>
+  );
+};
 
-  componentDidMount() {
-    this.init(this.match.params.userId);
-  }
-
-  render() {
-    const { classes } = this.props;
-    const redirectToSignin = this.state.redirectToSignin;
-    if (redirectToSignin) {
-      return (<Redirect to="/signin" />);
-    }
-    return (
-      <Paper className={classes.root} elevation={4}>
-        <Typography type="title" className={classes.title}>
-          Profile
-        </Typography>
-        <List dense>
-          <ListItem>
-            <ListItemAvatar>
-              <Avatar>
-                <Person />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={this.state.user.name}
-              secondary={this.state.user.email}
-            />{" "}
-            {auth.isAuthenticated().user &&
-              auth.isAuthenticated().user._id == this.state.user._id && (
-                <ListItemSecondaryAction>
-                  <Link to={"/user/edit/" + this.state.user._id}>
-                    <IconButton aria-label="Edit" color="primary">
-                      <Edit />
-                    </IconButton>
-                  </Link>
-                  <DeleteUser userId={this.state.user._id} />
-                </ListItemSecondaryAction>
-              )}
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText
-              primary={
-                "Joined: " + new Date(this.state.user.created).toDateString()
-              }
-            />
-          </ListItem>
-        </List>
-      </Paper>
-    );
-  }
-}
 
 Profile.propTypes = {
   classes: PropTypes.object.isRequired

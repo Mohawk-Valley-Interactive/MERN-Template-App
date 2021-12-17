@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   Typography
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
-import { Redirect } from "react-router";
+import { useLocation, Navigate } from "react-router-dom";
 
 import auth from "./auth-helper";
 import { signin } from "./api-auth.js";
@@ -41,134 +41,93 @@ const styles = theme => ({
   }
 });
 
-class Signin extends Component {
-  _isMounted = false;
+const Signin = ({ classes }) => {
+  const location = useLocation();
+  const { from } = location.state || { from: { pathname: "/" } };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(undefined);
+  const [redirectToReferrer, setRedirectToReferrer] = useState(false);
 
-  state = {
-    email: "",
-    password: "",
-    error: "",
-    redirectToReferrer: false
+  const onClickSubmit = (e) => {
+    e.preventDefault();
+    clickSubmit();
   };
 
-  componentDidMount() {
-    this._isMounted = true;
-
-    if (
-      this.props.location &&
-      this.props.location.state &&
-      this.props.location.state.error
-    ) {
-      this.safeSetState({ error: this.props.location.state.error });
-    }
-
-    this.safeSetState({ redirectToReferrer: auth.isAuthenticated() });
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  safeSetState(data) {
-    if (this._isMounted) {
-      this.setState(data);
-    }
-  }
-
-  clickSubmit = () => {
+  const clickSubmit = () => {
     const user = {
-      email: this.state.email || undefined,
-      password: this.state.password || undefined
+      email: email || undefined,
+      password: password || undefined
     };
 
     signin(user).then(data => {
       if (data.error) {
-        this.safeSetState({ error: data.error });
+        setError(data.error);
       } else {
         auth.authenticate(data, () => {
-          this.safeSetState({ redirectToReferrer: true });
+          setRedirectToReferrer(true);
         });
       }
     });
   };
 
-  onClickSubmit = e => {
-    e.preventDefault();
-    this.clickSubmit();
-  };
+  useEffect(() => {
+    setRedirectToReferrer(auth.isAuthenticated());
+  }, []);
 
-  handleChange = name => event => {
-    this.safeSetState({ [name]: event.target.value });
-  };
-
-  render() {
-    const { classes } = this.props;
-    const { from } = this.props.location.state || {
-      from: {
-        pathname: "/"
-      }
-    };
-    const { redirectToReferrer } = this.state;
-    if (redirectToReferrer) {
-      return <Redirect to={from} />;
-    }
-
-    return (
-      <form onSubmit={this.onClickSubmit}>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography
-              type="headline"
-              component="h2"
-              className={classes.title}
-            >
-              Sign In
-            </Typography>
-            <TextField
-              id="email"
-              type="email"
-              label="Email"
-              className={classes.textField}
-              value={this.state.email}
-              onChange={this.handleChange("email")}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="password"
-              type="password"
-              label="Password"
-              className={classes.textField}
-              value={this.state.password}
-              onChange={this.handleChange("password")}
-              margin="normal"
-            />
-            <br />{" "}
-            {this.state.error && (
-              <Typography component="p" color="error">
-                <Icon color="error" className={classes.error}>
-                  error
-                </Icon>
-                {this.state.error}
-              </Typography>
-            )}
-          </CardContent>
-          <CardActions>
-            <Button
-              type="submit"
-              color="primary"
-              variant="contained"
-              onClick={this.clickSubmit}
-              className={classes.submit}
-            >
-              Submit
-            </Button>
-          </CardActions>
-        </Card>
-      </form>
-    );
+  if (redirectToReferrer) {
+    return <Navigate replace to={from} />;
   }
-}
+
+  return (
+    <form onSubmit={onClickSubmit}>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography
+            type="headline"
+            component="h2"
+            className={classes.title}
+          >
+            Sign In
+          </Typography>
+          <TextField
+            id="email"
+            type="email"
+            label="Email"
+            className={classes.textField}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            margin="normal"
+          />
+          <br />
+          <TextField
+            id="password"
+            type="password"
+            label="Password"
+            className={classes.textField}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            margin="normal"
+          />
+          <br />{" "}
+          {error && (
+            <Typography component="p" color="error">
+              <Icon color="error" className={classes.error}>
+                error
+              </Icon>
+              {error}
+            </Typography>
+          )}
+        </CardContent>
+        <CardActions>
+          <Button type="submit" color="primary" variant="contained" className={classes.submit}>
+            Submit
+          </Button>
+        </CardActions>
+      </Card>
+    </form>
+  );
+};
 
 Signin.propTypes = {
   classes: PropTypes.object.isRequired

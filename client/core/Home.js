@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import {
   Card,
@@ -26,29 +26,26 @@ const styles = theme => ({
   }
 });
 
-class Home extends Component {
-  render() {
-    const { classes } = this.props;
-    return (
-      <div>
-        <Card className={classes.card}>
-          <Typography type="headline" component="h2" className={classes.title}>
-            MERN Template App
+const Home = ({ classes }) => {
+  return (
+    <div>
+      <Card className={classes.card}>
+        <Typography type="headline" component="h2" className={classes.title}>
+          MERN Template App
+        </Typography>
+        <CardMedia
+          className={classes.media}
+          image={splashImg}
+          title="Happy Goo$e"
+        />
+        <CardContent>
+          <Typography type="body1" component="p">
+            You might want to change this... ;-)
           </Typography>
-          <CardMedia
-            className={classes.media}
-            image={splashImg}
-            title="Happy Goo$e"
-          />
-          <CardContent>
-            <Typography type="body1" component="p">
-              You might want to change this... ;-)
-            </Typography>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 Home.propTypes = {

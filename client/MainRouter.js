@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Route, Switch } from "react-router";
+import React, { useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Menu from "./core/Menu";
@@ -10,29 +10,27 @@ import EditProfile from "./user/EditProfile";
 import Signin from "./auth/Signin";
 import Signup from "./user/Signup";
 
-class MainRouter extends Component {
-  componentDidMount() {
+const MainRouter = () => {
+  useEffect(() => {
     const jssStyles = document.getElementById('jss-server-side');
-    if(jssStyles && jssStyles.parentNode) {
+    if (jssStyles && jssStyles.parentNode) {
       jssStyles.parentNode.removeChild(jssStyles);
     }
-  }
+  }, []);
 
-  render() {
-    return (
-      <div>
-        <Menu />
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route path="/users" component={Users} />
-          <Route path="/signup" component={Signup} />
-          <Route path="/signin" component={Signin} />
-          <PrivateRoute path="/user/edit/:userId" component={EditProfile} authCallback={EditProfile.getAuthInfo}/>
-          <Route path="/user/:userId" component={Profile} />
-        </Switch>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Menu />
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/user/edit/:userId" element={<PrivateRoute authCallback={EditProfile.getAuthInfo}><EditProfile /></PrivateRoute>} />
+        <Route path="/user/:userId" element={<Profile />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default MainRouter;

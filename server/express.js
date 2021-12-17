@@ -7,10 +7,10 @@ import path from "path";
 
 import React from "react";
 import ReactDOMServer from "react-dom/server";
-import { StaticRouter } from "react-router";
+import { StaticRouter } from "react-router-dom/server";
 
 import { ServerStyleSheets } from "@material-ui/styles";
-import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import { indigo, pink } from "@material-ui/core/colors";
 
 import devBundle from "./devBundle";
@@ -35,8 +35,10 @@ app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 
 app.get("*", (req, res) => {
+
+
   const stylesSheets = new ServerStyleSheets();
-  const theme = createMuiTheme({
+  const theme = createTheme({
     palette: {
       primary: {
         light: "#757de8",
@@ -55,7 +57,7 @@ app.get("*", (req, res) => {
       type: "light"
     }
   });
-  const context = {};
+  const context = { url: undefined };
   const markup = ReactDOMServer.renderToString(
     stylesSheets.collect(
       <StaticRouter location={req.url} context={context}>
@@ -65,6 +67,11 @@ app.get("*", (req, res) => {
       </StaticRouter>
     )
   );
+
+  if (context.url) {
+    return res.redirect(303, context.url);
+  }
+
   res.status(200).send(
     Template({
       markup: markup,

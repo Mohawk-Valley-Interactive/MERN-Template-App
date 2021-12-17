@@ -1,5 +1,5 @@
 const path = require("path");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 const CURRENT_WORKING_DIR = process.cwd();
 
 const config = {
@@ -24,7 +24,8 @@ const config = {
     ]
   },
   optimization: {
-    minimizer: [new UglifyJsPlugin()]
+    minimize: true,
+    minimizer: [new TerserPlugin()]
   }
 };
 

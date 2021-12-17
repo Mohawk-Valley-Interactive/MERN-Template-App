@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Redirect } from "react-router";
+import { Route, Navigate } from "react-router-dom";
 
 const PrivateRoute = ({
   component: Component,
@@ -14,12 +14,7 @@ const PrivateRoute = ({
         return <Component {...props} />;
       }
       return (
-        <Redirect
-          to={{
-            pathname: "/signin",
-            state: { from: props.location, error: authInfo.errorMessage}
-          }}
-        />
+        <Navigate replace to="/signin" />
       );
     }}
   />

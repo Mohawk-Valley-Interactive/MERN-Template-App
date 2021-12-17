@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Avatar,
   IconButton,
-  List, 
+  List,
   ListItem,
   ListItemAvatar,
   ListItemSecondaryAction,
@@ -19,62 +19,63 @@ import { Link } from "react-router-dom";
 import { list } from "./api-user.js";
 
 const styles = theme => ({
-  root: theme.mixins.gutters({
+  root: {
     padding: theme.spacing(1),
-    margin: theme.spacing(5)
-  }),
+    margin: theme.spacing(5),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing(3),
+      paddingRight: theme.spacing(3),
+    }
+  },
   title: {
     margin: `${theme.spacing(4)}px 0 ${theme.spacing(2)}px`,
     color: theme.palette.openTitle
   }
 });
 
-class Users extends Component {
-  state = {
-    users: []
-  };
+const Users = ({ classes }) => {
+  let [users, setUsers] = useState([]);
 
-  componentDidMount() {
+  useEffect(() => {
     list().then(data => {
       if (data.error) {
         console.log(data.error);
       } else {
-        this.setState({ users: data });
+        setUsers(data);
       }
     });
-  }
+  }, []);
 
-  render() {
-    const { classes } = this.props;
-    return (
-      <Paper className={classes.root} elevation={4}>
-        <Typography type="title" className={classes.title}>
-          All Users
-        </Typography>
-        <List dense>
-          {this.state.users.map((item, i) => {
-            return (
-              <Link to={"/user/" + item._id} key={i}>
-                <ListItem button>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <Person />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText primary={item.name} />
-                  <ListItemSecondaryAction>
-                    <IconButton>
-                      <ArrowForward />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              </Link>
-            );
-          })}
-        </List>
-      </Paper>
-    );
-  }
+  return (
+    <Paper className={classes.root} elevation={4}>
+      <Typography type="title" className={classes.title}>
+        All Users
+      </Typography>
+      <List dense>
+        {users.map((item, i) => {
+          return (
+            <Link to={"/user/" + item._id} key={i}>
+              <ListItem button>
+                <ListItemAvatar>
+                  <Avatar>
+                    <Person />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary={item.name} />
+                <ListItemSecondaryAction>
+                  <IconButton>
+                    <ArrowForward />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            </Link>
+          );
+        })}
+      </List>
+    </Paper>
+  );
 }
 
 Users.propTypes = {
